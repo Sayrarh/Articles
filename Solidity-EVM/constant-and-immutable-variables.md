@@ -164,7 +164,7 @@ This means that at the bytecode level, constant and immutable variables are simp
 
 
 
-### How constant and immutable variables are stored in the contract bytecode
+### How constant and immutable variables are stored in the contract bytecode and gas cost
 Using the contract below, let's compile and get the contract's bytecode
 
 ```solidity
@@ -181,26 +181,6 @@ contract Constants{
    
 }
 ```
-
-
-#### Contract's Bytecode
-<br/>
-"60a060405263<b>41789343</b>63ffffffff1660809063ffffffff1681525034801561002757600080fd5b506080516101f2610042600039600060a201526101f26000f3
-fe608060405234801561001057600080fd5b50600436106100415760003560e01c806335815b95146100465780639d53fe2b146100645780
-63f964d10914610082575b600080fd5b61004e6100a0565b60405161005b9190610117565b60405180910390f35b61006c6100c4565b6040
-51610079919061014b565b60405180910390f35b61008a6100eb565b60405161009791906101a1565b60405180910390f35b7f0000000000
-00000000000000000000000000000000000000000000000000000081565b7ff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a
-60001b81565b65185<b>c10c77be35aff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a185</b>60001b81565b65<b>c10c77be35af</b>
-60d01b81565b600063ffffffff82169050919050565b610111816100f8565b82525050565b600060208201905061012c60008301846101
-08565b92915050565b6000819050919050565b61014581610132565b82525050565b6000602082019050610160600083018461013c565b92
-915050565b60007fffffffffffff000000000000000000000000000000000000000000000000000082169050919050565b61019b81610166
-565b82525050565b60006020820190506101b66000830184610192565b9291505056fea2646970667358fe1220fea2fe878953ff1c6e0127
-1ad219cbfd6ddcb5270eaf8c47fe96fefefe48115964736f6c63430008110033",<br/>
-<br/>
-
-You can now see where the FACTOR and ROLE variable in bold is placed in it contract's bytecode. For easy access you can use CTRL/F on your system to see the values in the bytecode.
-
-
 
 ### Gas Optimization
 Constant and immutable variables have significantly lower gas costs. When assigning a value to a constant variable, it is duplicated and reevaluated every time it is accessed, enabling for local optimizations. Immutable variables, on the other hand, are evaluated only once upon creation, and their value is then duplicated to all parts of the code where they are referenced. 
@@ -229,7 +209,7 @@ See gas cost for each commented in the code snippet above. Now the question is <
 Constants are never padded in the contract bytecode, whereas immutables are reserved a full 32-byte word in the contract bytecode, even if their value requires fewer bytes (for example, an immutable defined as a uint32 type) will still be padded to 32 bytes.
 
 
-### Contract Opcode	
+### Contract Bytecode
 <br/>
 608060405234801561001057600080fd5b50600436106100415760003560e01c806335815b95146100465780639d53fe2b14610064578063
 f964d10914610082575b600080fd5b61004e6100a0565b60405161005b9190610117565b60405180910390f35b61006c6100c4565b604051
