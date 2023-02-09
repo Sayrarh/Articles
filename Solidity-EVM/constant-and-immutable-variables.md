@@ -128,6 +128,34 @@ contract ImmutableVisibility{
  }
 ```
 
+### Types for constants and immutable variables
+Constants and immutables have different restrictions on the types of values that can be assigned to them.
+1. Constants can have any value type, including integers, fixed-point numbers, booleans, addresses, contract types, bytes arrays, and enums. Additionally, constants can also have string and bytes values. However, structs are not yet supported as a type for constants.
+
+2. Immutables, on the other hand, can only have value types. Non-value types like string, bytes, and structs are not allowed as immutables.
+
+
+### Constant Defined at File level
+Constants in Solidity can be further defined at the file level, outside of any contract block. These constants can then be used in other files by either importing the entire .sol file that contains the constants
+
+```solidity
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+bytes32 constant public ROLE = 0xc10c77be35aff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a185;
+
+contract ConstFile{
+    address owner;
+}
+```
+ Or by importing specific constants using the specific import syntax.
+
+
+#### Importance of defining constant at file level / importing constant file
+
+Defining constants at the file level can be useful in cases where you want to share values between multiple contracts or if you want to keep the values in a separate file for better organization. By importing the constants in other files, you can avoid duplicating the values and make the code more maintainable.
+
+
 
 ### Constant and Immutable Storage
 The Solidity compiler does not reserve a storage slot for constant or immutable variables, and instead replaces every occurrence of these variables with their assigned value in the contract's bytecode. 
@@ -156,22 +184,20 @@ contract Constants{
 
 
 #### Contract's Bytecode
-
-```
-"60a060405263 <b>41789343</b>63ffffffff1660809063ffffffff1681525034801561002757600080fd5b506080516101f2610042600039600060a201526101f26000f3
-<br/>fe608060405234801561001057600080fd5b50600436106100415760003560e01c806335815b95146100465780639d53fe2b146100645780
-<br/>63f964d10914610082575b600080fd5b61004e6100a0565b60405161005b9190610117565b60405180910390f35b61006c6100c4565b6040
-<br/>51610079919061014b565b60405180910390f35b61008a6100eb565b60405161009791906101a1565b60405180910390f35b7f0000000000
-<br/>00000000000000000000000000000000000000000000000000000081565b7ff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a
-<b>185c10c77be35aff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a185</b>60001b81565b65<b>c10c77be35af</b>
 <br/>
+"60a060405263 <b>41789343</b>63ffffffff1660809063ffffffff1681525034801561002757600080fd5b506080516101f2610042600039600060a201526101f26000f3
+fe608060405234801561001057600080fd5b50600436106100415760003560e01c806335815b95146100465780639d53fe2b146100645780
+63f964d10914610082575b600080fd5b61004e6100a0565b60405161005b9190610117565b60405180910390f35b61006c6100c4565b6040
+51610079919061014b565b60405180910390f35b61008a6100eb565b60405161009791906101a1565b60405180910390f35b7f0000000000
+00000000000000000000000000000000000000000000000000000081565b7ff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a
+<b>185c10c77be35aff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a185</b>60001b81565b65<b>c10c77be35af</b>
 60d01b81565b600063ffffffff82169050919050565b610111816100f8565b82525050565b600060208201905061012c60008301846101
-<br/>08565b92915050565b6000819050919050565b61014581610132565b82525050565b6000602082019050610160600083018461013c565b92
-<br/>915050565b60007fffffffffffff000000000000000000000000000000000000000000000000000082169050919050565b61019b81610166
-<br/>565b82525050565b60006020820190506101b66000830184610192565b9291505056fea2646970667358fe1220fea2fe878953ff1c6e0127
-<br/>1ad219cbfd6ddcb5270eaf8c47fe96fefefe48115964736f6c63430008110033",
-```
+08565b92915050565b6000819050919050565b61014581610132565b82525050565b6000602082019050610160600083018461013c565b92
+915050565b60007fffffffffffff000000000000000000000000000000000000000000000000000082169050919050565b61019b81610166
+565b82525050565b60006020820190506101b66000830184610192565b9291505056fea2646970667358fe1220fea2fe878953ff1c6e0127
+1ad219cbfd6ddcb5270eaf8c47fe96fefefe48115964736f6c63430008110033",
 
+<br/>
 You can now see where the FACTOR and ROLE variable in bold is placed in it contract's bytecode. For easy access you can use CTRL/F on your system to see the values in the bytecode.
 
 
@@ -204,31 +230,21 @@ Constants are never padded in the contract bytecode, whereas immutables are rese
 
 
 ### Contract Opcode	
-
-```
+<br/>
 608060405234801561001057600080fd5b50600436106100415760003560e01c806335815b95146100465780639d53fe2b14610064578063
-<br/>
 f964d10914610082575b600080fd5b61004e6100a0565b60405161005b9190610117565b60405180910390f35b61006c6100c4565b604051
-<br/>
-610079919061014b565b60405180910390f35b61008a6100eb565b60405161009791906101a1565b60405180910390f35b7f<b>0000000000<br/>
-000000000000000000000000000000000000000000000041789343</b>81565b7f<b>c10c77be35aff266144ed64c26a1fa104bae2f284ae9
-<br/>
-9ac4a34203454704a185</b>60001b81565b65<b>c10c77be35af</b>60d01b81565b600063ffffffff82169050919050565b610111816100f8565b82525050565b600060208201905061012c60008301846101
-<br/>
+610079919061014b565b60405180910390f35b61008a6100eb565b60405161009791906101a1565b60405180910390f35b7f<b>0000000000000000000000000000000000000000000000000000000041789343</b>81565b7f<b>c10c77be35aff266144ed64c26a1fa104bae2f284ae99ac4a34203454704a185</b>60001b81565b65<b>c10c77be35af</b>60d01b81565b600063ffffffff82169050919050565b610111816100f8565b82525050565b600060208201905061012c60008301846101
 08565b92915050565b6000819050919050565b61014581610132565b82525050565b6000602082019050610160600083018461013c565b92
-<br/>
 915050565b60007fffffffffffff000000000000000000000000000000000000000000000000000082169050919050565b61019b81610166
-<br/>
 565b82525050565b60006020820190506101b66000830184610192565b9291505056fea2646970667358221220eaa2c5878953ff1c6e0127
-<br/>
 1ad219cbfd6ddcb5270eaf8c47ee96ccc6bb48115964736f6c63430008110033
-```
 
+<br/>
 If you observe the opcode above the immutable variable FACTOR = 0x41789343 is padded with leading zeros while the constant variable RANDOM = 0xc10c77be35af is not. 
 <br/>
 1. This is because 32 bytes are reserved for immutable variable, even if they would fit in fewer bytes. Due to this, constant values can sometimes be cheaper than immutable values.
 
-2. Another reason why constant and immutables are gas efficient is becuase SLOAD operations to read the contract storage, which is one of the most expensive operations in terms of gas in the EVM, are not performed on them because their values are not stored in the contract's storage. You can look through the opcodes below.
+2. Another reason why constant and immutables are gas efficient is because SLOAD operations to read the contract storage, which cost about 100 gas in the EVM, are not performed on them because their values are not stored in the contract's storage. You can look through the opcodes below.
 
 
 ```solidity
