@@ -74,7 +74,7 @@ In essense, the conversion from address to address payable is done to enable sen
 address payable payableAddress; 
 ```
 
-## Gas cost of payable and non payable function
+## Gas cost for payable and non payable function
 Let's perform a transaction and observe the gas cost for each case using the following contracts.
 
 ```solidity
@@ -92,7 +92,7 @@ contract Payable{
    
 }
 ```
-The depositEther transaction cost <b>30580</b>gas.
+The depositEther transaction cost <b>30580</b> gas.
 
 
 ```solidity
@@ -110,7 +110,8 @@ contract NonPayable{
 }
 ```
 
-The depositAmount transaction cost <b>31141</b> gas. Notice that the gas cost for the payable function is cheaper than that of non payable function. Let's unbox the mystery behind it!
+The depositAmount transaction cost <b>31141</b> gas. <br/>
+Notice that the gas cost for the payable function is cheaper than that of non payable function. Let's unbox the mystery behind it!
 
 
 ## Why payable functions are cheaper than non payable functions
@@ -144,12 +145,12 @@ Runtime code is executed every time the contract is called or invoked. This code
 
 ### Bytecode for the Non-Payable contract;
 [6080604052<b>348015600f57600080fd5b50603f80601d</b>6000396000f3fe] - Init Code
-[6080604052600080fdfea2646970667358fe1220fe"fefefefe160342fefe35692fec668c4c7705aa8c111a45fe6447aec3158411"64736f6c63430008110033]- Runtime code
+[6080604052600080fdfea2646970667358fe1220fefefefefe160342fefe35692fec668c4c7705aa8c111a45fe6447aec315841164736f6c63430008110033]- Runtime code
 
 
 ### Bytecode for the Payable contract;
 [6080604052<b>603f806011600039</b>6000f3fe] - Init Code
-[6080604052600080fdfea2646970667358fe1220fe"09fefe93fef3f2a4fefefea49cfe11fefe99fe05fe7d05fa3e9cd05f3e1433"64736f6c63430008110033]- Runtime code
+[6080604052600080fdfea2646970667358fe1220fe09fefe93fef3f2a4fefefea49cfe11fefe99fe05fe7d05fa3e9cd05f3e143364736f6c63430008110033]- Runtime code
 
 
 If you observe, the init code for the non-payable function is longer than that of the payable function same goes for the opcodes below. The init is highlighted in bold.
@@ -265,7 +266,7 @@ In this case, the 'CALLVALUE' is expected to be zero since the constructor wasn'
 ```
 For the payable contract, the EVM skips the checks as it assumes that a value will be sent with the transaction resulting in a lower gas cost compared to the non payable contract.
 
-### Conclusion
+## Conclusion
 To summarize, the use of the 'CALLVALUE' and other opcodes which follow for non-payable functions results in increased gas costs, as each opcode incurs a gas fee. In a separate article, I will go into greater detail on how the Ethereum Virtual Machine (EVM) executes a smart contract. I hope you found this information useful. If so, please consider liking, leaving a comment or question, and sharing. 
 <br/>
 Thank you!
