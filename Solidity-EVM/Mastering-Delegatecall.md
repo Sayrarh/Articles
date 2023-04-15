@@ -24,7 +24,7 @@ Similarly, when you use delegatecall in a smart contract, you can call another c
 
 Let’s pause for a moment and examine the distinction between utilizing call and delegatecall in Solidity. It is important to comprehend the disparity between these two, as it is vital for upgrading smart contracts.
 
-![Call and Delegatecall Illustration](Images/delgate.png)
+![Call and Delegatecall Illustration](../Images/delgate.png)
 
 call is a low-level Solidity function used to make an external call. When call is used, the target contract executes in its own context and any state changes it makes are confined to its own storage. call also returns a boolean value to indicate whether the call succeeded or not.
 <br/>
@@ -132,7 +132,7 @@ The TargetContract has the following when the changeMessage() is called with a n
   <br/>
   If you observe, the address(this) value didn’t change and also since the owner variable was assigned to the caller of the set() function which is the msg.sender, the CallingContract state variable gets updated with the current msg.senderin the context of the CallingContract and not the TargetContract.
 
-![Result on Remix](Images/reset.png)
+![Result on Remix](../Images/reset.png)
 
 The “owner” variable in theTargetContract still gives a value of 0x637CcDeBB20f849C0AA1654DEe62B552a058EA87, which is the same as the msg.senderthat deployed the TargetContract. When calling the “owner” variable in theCallingContract, it gives the value of the msg.sender who called the “set()” function, which is “0xEB7A41D324ee4859E3cbFAd4b3820B82FCCe6658” in this context.
 Thus, all the requirements mentioned in “Things to note when using delegatecall” have been fulfilled.
