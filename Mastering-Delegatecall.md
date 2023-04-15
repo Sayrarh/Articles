@@ -24,27 +24,28 @@ Similarly, when you use delegatecall in a smart contract, you can call another c
 
 Let’s pause for a moment and examine the distinction between utilizing call and delegatecall in Solidity. It is important to comprehend the disparity between these two, as it is vital for upgrading smart contracts.
 
-![Call and Delegatecall Illustration](https://file%2B.vscode-resource.vscode-cdn.net/home/oluwatosin/Documents/My-Solidity-Journal/Images/delgate.png?version%3D1681585315054)
+![Call and Delegatecall Illustration](Images/delgate.png)
 
 call is a low-level Solidity function used to make an external call. When call is used, the target contract executes in its own context and any state changes it makes are confined to its own storage. call also returns a boolean value to indicate whether the call succeeded or not.
 <br/>
 <br/>
 While delegatecall is similar to call, but instead of executing the target contract in its own context, it executes it in the context of the calling contract's current state as you can see in the diagram above. This means that any state changes made by the target contract are made to the calling contract's storage. This particular use case is of great significance when upgrading a contract, as it enables you to separate the contract's logic into multiple contracts without losing the original contract's state.
 <br/>
+
 <i>For example, suppose you have a contract that needs to be upgraded. You can create a new contract with the upgraded logic and use delegatecall to execute the new contract's code in the context of the original contract's storage. This way, the upgraded logic can access and modify the original contract's state as needed.</i>
 
 ### Things to note when using delegatecall
 
 1. When a contract makes a delegatecall, the value of address(this), msg.sender, and msg.value do not change their values. However, it’s important to note that while the target contract can access the storage variables of the calling contract, it doesn’t inherit the original message call parameters of the calling contract. The original message call parameters include msg.sender, which is the address of the account that sent the original message call, and msg.value, which is the amount of Ether sent along with the message call, if any.
    <br/>
-   <br/>
 2. When a contract is called using delegatecall, the values of msg.senderand msg.valuepassed to the target contract are not those of the delegate call but instead those of the original message call to the calling contract. This means that the target contract can’t access the actual address of the account that sent the delegatecall or the amount of Ether sent with the delegate call.
    <br>
-   <i>To illustrate this point, let’s say Contract A calls Contract B using delegatecall. If Contract B accesses msg.senderor msg.value, it will retrieve the values of the original message call to Contract A, not those of the delegate call from Contract A to Contract B. This is because delegatecall forwards the entire message (includingmsg.sender and msg.value) to the target contract but executes the called contract’s code in the context of the calling contract.</i>
+
+<i>To illustrate this point, let’s say Contract A calls Contract B using delegatecall. If Contract B accesses msg.senderor msg.value, it will retrieve the values of the original message call to Contract A, not those of the delegate call from Contract A to Contract B. This is because delegatecall forwards the entire message (includingmsg.sender and msg.value) to the target contract but executes the called contract’s code in the context of the calling contract.</i>
 
 3. When a function is executed with delegatecall, reads and writes to state variables do not happen to the contract that loads and executes the function i.e the target contract. Instead, the reads and writes happen to the contract that defines the function being executed(caller contract). This is because the execution context is that of the target contract, not the calling contract. So any changes made to state variables within the target function will happen to the storage of the target contract, not the calling contract.
+   <br/>
 
-<br/>
 <i>e.g., When ContractA uses delegatecall to execute a function from ContractB, the execution context is still within ContractA. This means that any reads or writes to state variables within that context will be to the state variables of ContractA, not ContractB. ContractB’s state variables are effectively “hidden” from ContractA’s execution context and cannot be read or written to directly. However, ContractB’s functions can still access and modify its own state variables, as long as they are called directly (i.e. not through delegatecall) or through another contract that uses call instead of delegatecall.</i>
 
 ## How to use delegatecall with code example
@@ -145,10 +146,9 @@ Thus, all the requirements mentioned in “Things to note when using delegatecal
    <br/>
 
 <i>For example let’s say that a ContractA declares state variables ‘string message;’ and ‘address owner;’ and ContractB declares state variables ‘uint256 num;’ and ‘address owner;’. They have different state variables at position 0 (‘string message’ and ‘uint256 num’) in contract storage and so they will write and read wrong data between them at position 0 if delegatecall is used between them.</i>
+<br/>
 
-<br/>
-<br/>
-It is important to carefully plan and manage the state variable layout of contracts that use delegatecall to ensure that they are accessing the same data in the same memory locations. This can be achieved through strategies such as defining a shared interface or thoroughly communicating any changes to the state variable layout. To know more about using a shared storage for upgradeable contracts, check out my previous article on[Diamond Standard](https://medium.com/@ajaotosinserah/upgradable-functionality-with-eip2535-a-comparative-analysis-c9c1d9954296)
+It is important to carefully plan and manage the state variable layout of contracts that use delegatecall to ensure that they are accessing the same data in the same memory locations. This can be achieved through strategies such as defining a shared interface or thoroughly communicating any changes to the state variable layout. To know more about using a shared storage for upgradeable contracts, check out my previous article on [Diamond Standard](https://medium.com/@ajaotosinserah/upgradable-functionality-with-eip2535-a-comparative-analysis-c9c1d9954296)
 <br/>
 
 3. Changing state variables in the calling contract: When using delegatecall, you need to be careful not to accidentally modify state variables in the calling contract. If the called function modifies state variables, those changes will be made to the calling contract's state instead of the target contract's state. Always make sure to use call instead of delegatecall if you need to modify state variables in the calling contract.
