@@ -1,0 +1,13 @@
+So specifically, to EVM, the following opcodes that can all cause an integer overflow: ADD, SUB, MUL, EXP.
+
+Newer versions of Solidity (Solidity 0.8 and higher) throw an error for overflow/underflow, but all unchecked blocks should still be analysed, as seen in the previous examples. In older solidity versions all arithmetic functions should be checked to make sure that they are using SafeMath for every addition, subtraction, exponentiation and multiplication. Some of the smart contracts security tools, like MythX and Mythril, can also help detecting integer overflows and underflows.
+
+1. The easiest way to prevent this bug is to use at least a 0.8 version of the Solidity compiler. In Solidity 0.8, the compiler will automatically take care of checking for overflows and underflows. However, be sure the code is designed properly to avoid Denial of Service attacks based on integer overflow. Running the same example https://github.com/ylevalle/SolidityOverflow/blob/main/overflow.sol in Remix but with Solidity 0.8.0. When the new version is deployed, trying to hit "overflow" or "underflow" will generate an error in the Remix console and the transaction will be reverted:
+
+This later version is more secure as it reverts, whereas the former version returns an incorrect result.
+
+2. The preventative technique used to guard against under/overflow vulnerabilities in older versions is to use or build mathematical libraries which replace the standard math operators; addition, subtraction, exponentiation and multiplication (division is excluded as it doesn't cause over/under flows and the EVM reverts on division by 0). In June 2017, OpenZeppelin created the SafeMath.sol library aiming to tackle the underflow and overflow issues, SafeMath is now a well-known library used in many contracts. It provides safe addition, subtraction, and multiplication, by carefully comparing the operators and operands before the operation, but can also check the preconditions and postconditions to understand whether an overflow has occurred. When such an error is detected, the library fails the execution of the transaction and updates the status of the transaction as ‘Reverted’.
+
+It is also important to recognize that overflow and underflow can happen in different arithmetic operations and in different versions of Solidity, it even remains possible in version 0.8 for operations inside unchecked blocks. Additionally, it is important to pay attention to possible logic and arithmetic errors in batch operations that can lead to an underflow or overflow and to the existence of phantom or false overflows in the code.
+
+Adding numbers larger than the data type's range is called an overflow.
