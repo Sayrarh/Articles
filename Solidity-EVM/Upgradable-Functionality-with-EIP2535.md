@@ -31,11 +31,13 @@ A diamond contract uses the external functions of other contracts, which are cal
 
 <strong>Note: Solidity automatically assigns storage locations for state variables in a contract starting from slot 0. However, when upgrading a diamond with new facets, it is possible for the new facet to clobber existing state variables.</strong>
 <br/>
+
 This can happen because the storage layout of a diamond is not fixed, and new facets can add or remove state variables, which can cause the storage slots of existing variables to shift. If a new facet declares a state variable with the same name as an existing one, the new variable will overwrite the old one, and any data previously stored in that slot will be lost.
 <br/>
 
 <strong><i>A wrong use of data is no data at all</i></strong>
 <br/>
+
 To avoid this problem, it’s important to carefully manage the storage layout of a diamond when adding new facets. One approach is to use a storage layout library that provides a fixed storage layout for the diamond and ensures that new facets are added in a way that doesn’t clobber existing state variables. Another approach is to use a naming convention for state variables that includes a prefix or suffix indicating the facet that owns the variable, to avoid naming collisions between facets.
 
 ## Types of Storage used in diamond contracts
@@ -50,11 +52,15 @@ However, when using the Diamond standard, a single diamond contract manages mult
 
 Diamond Storage is a library that allows you to bypass Solidity’s automatic storage location mechanism by specifying where data(state variables) should be stored in the contract storage.
 <br/>
+<br/>
 With Diamond Storage, you can define a fixed storage layout for a diamond that doesn’t change even if you add new facets to the diamond. This is done by defining the storage slots for each state variable explicitly, instead of relying on Solidity’s automatic mechanism.
+<br/>
 <br/>
 When using diamond storage, a struct is defined to hold a set of related state variables. The struct is then assigned a position in contract storage based on the hash of a unique string, which acts as a namespace for the struct. This allows multiple structs to be used in the same contract without interfering with each other.
 <br/>
+<br/>
 By specifying the storage location for each state variable, Diamond Storage ensures that the variables are not clobbered when new facets are added to the diamond. This makes it easier to upgrade the diamond by adding new facets without worrying about the storage layout of existing variables changing.
+<br/>
 <br/>
 It’s important to note that using Diamond Storage requires careful planning and design to ensure that the storage layout is efficient and scalable, especially for diamonds with a large number of state variables.
 
@@ -201,7 +207,9 @@ contract TamswapFactory {
 
 It is understandable that calling myFactoryStorage() in every function to access state variables can be tedious. However, it is important to remember that compartmentalizing state variables is necessary for creating modular and organized facets.
 <br/>
+<br/>
 One solution to this issue is to create a custom helper function within your diamond contract that can be called instead of myFactoryStorage(). This helper function can be designed to specifically access the state variables needed for your application and can be used by any function within the diamond contract that requires access to those state variables.
+<br/>
 <br/>
 AppStorage is a tailored variant of Diamond Storage, offering a user-friendly approach to accessing state variables unique to an application and shared across multiple facets.
 
@@ -362,7 +370,9 @@ To share state variables between facets, developers can use the same struct at t
 
 When an external function is called on a diamond, the fallback function is executed. The fallback function then uses the first four bytes of the call data to determine which facet to call, based on the function selector. The function is then executed on the facet using delegatecall.
 <br/>
+<br/>
 Delegatecall is an EVM opcode that allows a contract to delegate a call to another contract while preserving the original contract’s context, such as msg.sender and msg.value. This means that when a diamond calls a function on a facet using delegatecall, the context of the diamond is maintained, and the function is executed as if it was implemented by the diamond itself. Only the diamond’s storage is read from and written to.
+<br/>
 <br/>
 This mechanism is what enables the Diamond standard to work, as it allows a single diamond contract to manage multiple facets and execute their functions as if they were part of the diamond itself. This results in a more efficient and modular approach to smart contract development, as it allows developers to split their contracts into smaller, more manageable pieces, and reuse code across multiple contracts. See code snippet below;
 
@@ -403,7 +413,9 @@ fallback() external payable {
 
 The diamondCut function in diamonds is an extremely flexible and efficient tool for contract upgrades. It allows developers to add, replace and remove any number of functions from a diamond in a single transaction, which can greatly simplify the upgrade process. This functionality enables developers to make changes to the diamond’s functionality without the need for complex and error-prone migration scripts.
 <br/>
+<br/>
 The diamondCut function is very flexible and can handle any number of changes at once. For instance, developers can add multiple functions, replace existing functions, and remove functions with a single function call. The flexibility of the diamondCut function is particularly useful when developers need to make many changes to a contract at once, or when they need to make small changes to a contract frequently.
+<br/>
 <br/>
 In addition, the diamondCut function emits an event that shows all changes made to a diamond. This allows developers to track and verify all changes made to the contract, which can be critical for maintaining the integrity and security of the diamond. The event records all additions, replacements, and removals of functions, providing an audit trail that can be used for debugging and security purposes.
 
@@ -411,7 +423,9 @@ In addition, the diamondCut function emits an event that shows all changes made 
 
 A function clash with the diamond standard occurs when two or more functions selectors in different facets of a diamond contract have the same name and input parameters.
 <br/>
+<br/>
 Upon reviewing the Router contracts in Uniswap V2, it becomes apparent that there are two distinct routers: Router1 and Router2. However, duplicating these contracts with both routers as facets would inevitably result in function selector conflicts as there are identical functions present in both contracts. The optimal solution I used to address these function clashes was to consolidate the facets into a single Router Facet, effectively resolving the issue.
+<br/>
 <br/>
 To avoid clashes, use a naming convention for function selectors. Each function must have a unique selector, which is generated by hashing the function’s name and input parameters using the keccak256 algorithm. The resulting hash is truncated to the first four bytes, which serve as the function selector.
 <br/>
@@ -430,8 +444,10 @@ function diamondCut(
 
 When a new facet is being added to the diamond, diamondCut checks that the facet's function selectors do not clash with any existing function selectors in the diamond. It does this by iterating through each of the existing facets, checking the function selectors they contain, and ensuring that no two facets have the same function selector.
 <br/>
+<br/>
 If a clash is detected, diamondCut will revert the transaction and provide an error message indicating which function selectors are causing the clash.
 <br/>
+
 To avoid this, ensure that all functions in different facets of a diamond contract have unique names or input parameters.
 
 ## DiamondLoupe
@@ -440,12 +456,16 @@ To avoid this, ensure that all functions in different facets of a diamond contra
 
 A loupe is a small magnifying glass or magnifier that is used to view objects in detail. It is typically held close to the eye and used for examining small details of objects that are difficult to see with the naked eye. So here, a loupe is used to look at diamonds.
 <br/>
+
 The major use of the DiamondLoupe in the diamond standard contract is to provide a mechanism for querying and displaying information about a diamond’s functions.
 <br/>
+
 Unlike regular contracts, the source code of a diamond does not include information about its functions. This is where the loupe functions come in they allow users to retrieve information about a diamond’s functions and use this information for various purposes.
 <br/>
+
 The loupe functions can be used to show all functions used by a diamond, retrieve and display source code and ABI information for a diamond, test and verify changes made to a diamond’s functions, and enable users to call functions on a diamond.
 <br/>
+
 In addition, the DiamondLoupe interface can be used by tools, programming libraries, and user interfaces to deploy and upgrade diamonds, show information about diamonds, and enable users to interact with diamonds.
 
 ## DiamondInit
@@ -469,7 +489,7 @@ function init() external {
 
 The UniswapV2 Core factory contract contains a constructor function that sets the msg.sender as the feeToSetter when the contract is deployed. This is done to set the initial feeToSetter address, which is used to control certain configuration parameters of the UniswapV2 protocol.
 
-![Factory Constructor](Images/con.png)
+![factory constructor](../Images/con.png)
 
 When using the EIP2535 standard to modularize the UniswapV2 contract, I set the feeToSetter address in the initialization function. The initialization function serves as the constructor for the modularized contract, and it is called once when the contract is deployed.
 
@@ -477,6 +497,7 @@ When using the EIP2535 standard to modularize the UniswapV2 contract, I set the 
 
 Before you chose between diamond or AppStorage, it is important to carefully consider the design of your diamond contract and its facets to ensure that the organization of state variables is modular and understandable, while also being efficient and easy to use for developers working with the contract.
 <br/>
+
 In summary, the diamond standard is a useful design pattern for creating modular and extensible Ethereum smart contracts.
 
 #### Resources
